@@ -56,11 +56,11 @@ def get_irrelevant_cells(board, num_rows, num_cols):
 
     return new_list
 
-def classify_cells_based_on_combinations(combination, surrounding_cells, variables): # classify surrounding cells in or not in combinations
+def classify_cells_based_on_combinations(combination, neighbor_cells, variables): # classify surrounding cells in or not in combinations
     not_in_cells = [] # gems cells
     in_cells = [] # traps cells
 
-    for cell in surrounding_cells:
+    for cell in neighbor_cells:
         if cell not in combination:
             not_in_cells.append(variables[cell])
         else:
@@ -78,12 +78,12 @@ def generate_CNF_by_constraint_cells(cell, board, num_rows, num_cols, variables)
 
         return clauses
     
-    combination = combinations(neighbor_cells, board[cell[0]][cell[1]]) # get combinations from cells
+    combination = combinations(neighbor_cells, board[cell[0]][cell[1]]) # get combinations from cells (all cells in combination will be considered as traps)
 
     for c in combination:
         not_in_cells, in_cells = classify_cells_based_on_combinations(c, neighbor_cells, variables)
         
-        for cell in not_in_cells: # cells not considered as traps
+        for cell in not_in_cells: # cells not considered as traps (considers as gems)
             sub_clause = []
             sub_clause.append(cell)
             sub_clause.extend(in_cells)
@@ -103,7 +103,7 @@ def generate_CNF_by_constraint_cells(cell, board, num_rows, num_cols, variables)
                 
     return clauses
 
-def removeDuplicates(clauses):
+def remove_duplicated_clauses(clauses):
     result_clauses = []
 
     for clause in clauses:
@@ -120,12 +120,12 @@ def generate_CNF_from_constraint(board, num_rows, num_cols, variables):
         clause = generate_CNF_by_constraint_cells(cell, board, num_rows, num_cols, variables)
         clauses.extend(clause)
 
-    irrelevant_cells = get_irrelevant_cells(board, num_rows, num_cols)
+    # irrelevant_cells = get_irrelevant_cells(board, num_rows, num_cols)
 
-    for cell in irrelevant_cells:
-        clauses.append([variables[cell]])
+    # for cell in irrelevant_cells:
+    #     clauses.append([variables[cell]])
 
-    clauses = removeDuplicates(clauses)
+    clauses = remove_duplicated_clauses(clauses)
 
     return clauses
 

@@ -1,7 +1,7 @@
 from CNF_pysat import *
 
 if __name__ == '__main__':
-    board, num_rows, num_cols = read_file("9x9testcase.txt")
+    board, num_rows, num_cols = read_file("testcases/5x5testcase.txt")
 
     print("Input:")
     print_problem_board(board, num_rows, num_cols)
