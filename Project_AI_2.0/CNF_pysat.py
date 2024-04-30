@@ -31,7 +31,7 @@ def get_numbered_cells(board, num_rows, num_cols): # get cells having number
                 numbered_cells.append((i, j))
     return numbered_cells
 
-def get_irrelevant_cells(board, num_rows, num_cols):
+def get_surely_gem_cells(board, num_rows, num_cols): # this function to determine cells have no number around (this is surely gem cells)
     irrelevant_cells = []
 
     for i in range(num_rows): # get None cells
@@ -120,10 +120,10 @@ def generate_CNF_from_constraint(board, num_rows, num_cols, variables):
         clause = generate_CNF_by_constraint_cells(cell, board, num_rows, num_cols, variables)
         clauses.extend(clause)
 
-    # irrelevant_cells = get_irrelevant_cells(board, num_rows, num_cols)
+    irrelevant_cells = get_surely_gem_cells(board, num_rows, num_cols)
 
-    # for cell in irrelevant_cells:
-    #     clauses.append([variables[cell]])
+    for cell in irrelevant_cells:
+        clauses.append([variables[cell]])
 
     clauses = remove_duplicated_clauses(clauses)
 
