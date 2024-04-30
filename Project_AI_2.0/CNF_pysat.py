@@ -9,54 +9,60 @@ from pysat.solvers import Solver
 def set_variables_for_cells(num_rows, num_cols): # set variable for each cell
     count = 1
     var = {}
+
     for i in range(num_rows):
         for j in range(num_cols):
             var[(i, j)] = count
             count += 1
+
     return var
 
-def get_neighbors(board, pos, num_rows, num_cols): # get surrounding cells which doesn't have number
+def get_neighbors(board, pos, num_rows, num_cols): # get around cells which doesn't have number
     neighbors = []
+
     for i in range(pos[0] - 1, pos[0] + 2):
         for j in range(pos[1] - 1, pos[1] + 2):
-            if i >= 0 and i < num_rows and j >= 0 and j < num_cols and (i, j) != pos and board[i][j] is None:
+            if i >= 0 and i < num_rows and j >= 0 and j < num_cols and (i, j) != pos and board[i][j] is None: # if neighbor cell is empty
                 neighbors.append((i, j))
+
     return neighbors
 
 def get_numbered_cells(board, num_rows, num_cols): # get cells having number
     numbered_cells = []
+
     for i in range(num_rows):
         for j in range(num_cols):
-            if board[i][j] is not None:
+            if board[i][j] is not None: # if has number
                 numbered_cells.append((i, j))
+
     return numbered_cells
 
 def get_surely_gem_cells(board, num_rows, num_cols): # this function to determine cells have no number around (this is surely gem cells)
-    irrelevant_cells = []
+    surely_gem_cells = []
 
     for i in range(num_rows): # get None cells
         for j in range(num_cols):
             if board[i][j] is None:
-                irrelevant_cells.append((i, j))
+                surely_gem_cells.append((i, j))
 
-    new_list = irrelevant_cells.copy()
+    result = surely_gem_cells.copy() # use sub list for safety
 
-    for cell in irrelevant_cells:
-        check = True
+    for cell in surely_gem_cells:
+        is_surely_gem_cells = True
 
         for i in range(cell[0] - 1, cell[0] + 2): # check around cells of None cells
             for j in range(cell[1] - 1, cell[1] + 2):
-                if i >= 0 and i < num_rows and j >= 0 and j < num_cols and board[i][j] is not None and (i, j) != cell:
-                    new_list.remove(cell)
-                    check = False
+                if i >= 0 and i < num_rows and j >= 0 and j < num_cols and board[i][j] is not None and (i, j) != cell: # if has any numbers around
+                    result.remove(cell)
+                    is_surely_gem_cells = False
                     break
 
-            if check == False:
+            if is_surely_gem_cells == False: # if there is any number, check next cell
                 break
 
-    return new_list
+    return result
 
-def classify_cells_based_on_combinations(combination, neighbor_cells, variables): # classify surrounding cells in or not in combinations
+def classify_cells_based_on_combinations(combination, neighbor_cells, variables): # classify neighbor cells in or not in combinations
     not_in_cells = [] # gems cells
     in_cells = [] # traps cells
 
@@ -107,7 +113,7 @@ def remove_duplicated_clauses(clauses):
     result_clauses = []
 
     for clause in clauses:
-        if clause not in result_clauses:
+        if clause not in result_clauses: # add clause which does not in result clause
             result_clauses.append(clause)
 
     return result_clauses
@@ -116,13 +122,13 @@ def generate_CNF_from_constraint(board, num_rows, num_cols, variables):
     clauses = []
     numbered_cells = get_numbered_cells(board, num_rows, num_cols)
 
-    for cell in numbered_cells: # create CNF by constraint cells
+    for cell in numbered_cells: # create CNF by constraint using cells
         clause = generate_CNF_by_constraint_cells(cell, board, num_rows, num_cols, variables)
         clauses.extend(clause)
 
-    irrelevant_cells = get_surely_gem_cells(board, num_rows, num_cols)
+    surely_gem_cells = get_surely_gem_cells(board, num_rows, num_cols)
 
-    for cell in irrelevant_cells:
+    for cell in surely_gem_cells:
         clauses.append([variables[cell]])
 
     clauses = remove_duplicated_clauses(clauses)
@@ -131,17 +137,23 @@ def generate_CNF_from_constraint(board, num_rows, num_cols, variables):
 
 def solve_CNF(clauses):
     solver = Solver()
+
     for clause in clauses:
-        solver.add_clause(clause)
+        solver.add_clause(clause) # add clauses to solve
+
     solver.solve()
-    model = solver.get_model()
-    if model is None:
+    result = solver.get_model()
+
+    if result is None: # no solution
         return [], []
+    
     traps = []
     gems = []
-    for m in model:
-        if m > 0:
-            gems.append(m)
+
+    for var in result: # classify variables from result
+        if var > 0:
+            gems.append(var)
         else:
-            traps.append(-m)
+            traps.append(-var)
+
     return traps, gems
