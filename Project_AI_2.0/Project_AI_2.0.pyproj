@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>2671664e-cd9a-445b-a39c-7f4544e661e0</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>createCNF.py</StartupFile>
+    <StartupFile>CNF_pysat.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -21,11 +21,14 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="createCNF.py" />
-    <Compile Include="InputOutput.py" />
+    <Compile Include="CNF_pysat.py" />
+    <Compile Include="main.py" />
+    <Compile Include="read_print_board.py" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="input.txt" />
+    <Content Include="11x11testcase.txt" />
+    <Content Include="5x5testcase.txt" />
+    <Content Include="9x9testcase.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
